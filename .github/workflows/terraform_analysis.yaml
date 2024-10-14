@@ -13,8 +13,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  release:
-    name: "Build"
+  scan:
+    name: "Security Scan"
     runs-on: ubuntu-latest
 
     steps:
@@ -38,4 +38,4 @@ jobs:
           pipenv install --deploy --dev
 
       - name: Static code analysis
-        run: pipenv run checkov --hard-fail-on 1 --directory infra
+        run: pipenv run checkov --directory infra
