@@ -118,13 +118,28 @@ Steps to deploy cloud infrastructure:
 * Install aws-cli or make sure you have `~/.aws/credentials` set which inlude AWS Secret and Access keys.
 * Install Terraform ([Terraform install](https://developer.hashicorp.com/terraform/install), select 1.5.x version)
 * Go to `infra` directory
-* Run the following commands:
+* Run Terraform commands
 
     ```sh
     terraform init
     terraform plan
     terraform apply -auto-approve
     ```
+
+* Access the instance
+
+    ```sh
+    ssh -i keypair.pem ec2-user@[PUBLIC_IP]
+    ```
+
+* Copy file to the s3 bucket from the instance
+
+    ```sh
+    touch test
+    aws s3 cp test s3://devsecopspy/
+    ```
+
+* You should be able to see the file `test` in `devsecopspy` bucket
 
 ### Destroy
 
