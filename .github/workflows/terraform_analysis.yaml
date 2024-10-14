@@ -38,4 +38,4 @@ jobs:
           pipenv install --deploy --dev
 
       - name: Static code analysis
-        run: pipenv run checkov --hard-fail-on 1 --directory infra
+        run: pipenv run checkov --directory infra
