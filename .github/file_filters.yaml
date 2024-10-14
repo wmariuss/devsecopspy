@@ -1,0 +1,4 @@
+pr: &pr
+  - "devsecopspy/**"
+  - "Dockerfile"
+  - "Pipfile*"

@@ -1,0 +1,62 @@
+# CI file to enable and use Github Actions
+# Maintainer: Marius Stanca <me@marius.xyz>
+
+name: Scan and Build the app
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: "Scan and Build"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - 3.9.7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set release type based on branch
+        if: ${{ ! (github.ref_name == 'main' || startsWith(github.ref_name, 'release/')) }}
+        run: echo "release=test" >> $GITHUB_ENV
+
+      - name: Set version for the app
+        if: ${{ ! (github.ref_name == 'main' || startsWith(github.ref_name, 'release/')) }}
+        run: echo "devsecopspy=${{ github.event.repository.name }}-${{ github.event.number }}" >> $GITHUB_ENV
+
+      - name: Install Python version
+        uses: gabrielfalcao/pyenv-action@v17
+        with:
+          default: "${{ matrix.python }}"
+          command: pip install -U pip
+
+      - name: Install app dependencies and create a virtual environment
+        run: |
+          pip install pipenv==2024.0.3
+          pipenv install --deploy --dev
+
+      - name: Run Bandit
+        run: pipenv run bandit -r devsecopspy/ -f json -o /tmp/bandit-report.json
+
+      - name: Save Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          path: /tmp/bandit-report.json
+
+      - name: Build docker image
+        run: |
+          docker build . -t registry.marius.xyz/${{ env.release }}/devsecopspy
+
+      - name: Give a version for the image
+        run: docker tag registry.marius.xyz/${{ env.release }}/devsecopspy registry.marius.xyz/${{ env.release }}/devsecopspy:${{ env.devsecopspy }}
+
+      - name: List the image built
+        run: docker images -a | grep registry.marius.xyz
