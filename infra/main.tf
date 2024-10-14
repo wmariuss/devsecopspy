@@ -6,11 +6,13 @@ provider "aws" {
 
 # EC2 instance
 resource "aws_instance" "ec2" {
-  ami                         = var.ami
-  instance_type               = var.instance_type
-  subnet_id                   = aws_subnet.my_subnet.id
-  vpc_security_group_ids      = [aws_security_group.allow_ssh.id]
-  associate_public_ip_address = false
+  ami                    = var.ami
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.my_subnet.id
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  key_name               = aws_key_pair.ec2.key_name
+  # Enable it if the subnet is public
+  associate_public_ip_address = true
   monitoring                  = true
   ebs_optimized               = true
   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.id
