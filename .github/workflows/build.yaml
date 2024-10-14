@@ -43,7 +43,7 @@ jobs:
           pip install pipenv==2024.0.3
           pipenv install --deploy --dev
 
-      - name: Run Bandit
+      - name: Scan security issues
         run: pipenv run bandit -r devsecopspy/ -f json -o /tmp/bandit-report.json
 
       - name: Save Bandit report
